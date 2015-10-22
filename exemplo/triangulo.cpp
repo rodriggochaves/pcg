@@ -1,4 +1,4 @@
-#include "Ralha.h"
+#include "../includes/Ralha.h"
 
 typedef Angel::vec4 point4;
 typedef Angel::vec4 color4;
@@ -41,7 +41,6 @@ int main (int argc, char** argv) {
   /* Before  your application  exits,  you should  terminate the  GLFW
      library if it has been initialized. */
   glfwTerminate();
-  return 0;
 }
 
 

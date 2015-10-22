@@ -1,66 +1,58 @@
 #include "Ralha.h"
 
+
+
 typedef Angel::vec4 point4;
 typedef Angel::vec4 color4;
 
-void myDisplay( void );
-void myInit( void );
+void mydisplay( void );
+void init( void );
 
-
-point4 points[3] = {
+point4 points[4] = {
   point4( -0.5, -0.5, 0.0, 1.0 ),
   point4(  0.5, -0.5, 0.0, 1.0 ),
-  point4(  0.0,  0.5, 0.0, 1.0 )
+  point4(  0.5,  0.5, 0.0, 1.0 ),
+  point4( -0.5,  0.5, 1.0, 1.0 ),
 };
 
-
-
-GLFWwindow *window;
-
-
-
-
+GLFWwindow* window;
 
 int main (int argc, char** argv) {
-  window = inicia_glfw(3, 3, "Meu 1º Triângulo");
-  inicia_glew ( );
+  window = inicia_glfw(3, 3, "Quadrado ==  Leque Triangular");
+  inicia_glew();
 
-
-  myInit();
+  init();
 
   // Ensure we can capture the escape key being pressed below
   glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
  
   do{
-    myDisplay();
+    mydisplay();
+    // Swap buffers
+   
     glfwPollEvents();
+ 
   } // Check if the ESC key was pressed or the window was closed
   while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
 	 glfwWindowShouldClose(window) == 0 );
 
-  /* Before  your application  exits,  you should  terminate the  GLFW
-     library if it has been initialized. */
   glfwTerminate();
-  return 0;
 }
 
 
 
-
-
-
-void myDisplay( void ) {
+void mydisplay( void ) {
   glClear( GL_COLOR_BUFFER_BIT );
 
-  glDrawArrays( GL_TRIANGLES, 0, 3 );
+  glDrawArrays( GL_TRIANGLE_FAN, 0, 4);
 
   glfwSwapBuffers(window);
 }
 
 
-void myInit( void ) {
+void init( void ) {
   // Load shaders and use the resulting shader program
-  GLuint program = InitShader( "./tri.vert", "./tri.frag" );
+  GLuint program = InitShader( "tri.vert", "tri.frag" );
   glUseProgram( program );
 
   // Create a vertex array object
@@ -74,17 +66,11 @@ void myInit( void ) {
   glBindBuffer( GL_ARRAY_BUFFER, buffer );
   glBufferData( GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW );
 
-  // set up vertex arrays 
-  GLuint vPosition = glGetAttribLocation( program, "vPosition" );
-  glEnableVertexAttribArray( vPosition );
-  glVertexAttribPointer( vPosition, 4, GL_FLOAT, GL_FALSE, 0, 
+  // set up vertex array 
+  // layout (location = 0) in vec4 vPosition
+  glEnableVertexAttribArray( 0 );
+  glVertexAttribPointer( 0, 4, GL_FLOAT, GL_FALSE, 0, 
           BUFFER_OFFSET(0) );
 
-
   glClearColor( 1.0, 1.0, 1.0, 1.0 );
-
 }
-
-
-
-

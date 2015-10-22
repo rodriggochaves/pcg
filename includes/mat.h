@@ -40,7 +40,7 @@ class mat2 {
 	if ( *this != m ) {
 	    _m[0] = m._m[0];
 	    _m[1] = m._m[1];
-	} 
+	}
     }
 
     //
@@ -60,7 +60,7 @@ class mat2 {
     mat2 operator - ( const mat2& m ) const
 	{ return mat2( _m[0]-m[0], _m[1]-m[1] ); }
 
-    mat2 operator * ( const GLfloat s ) const 
+    mat2 operator * ( const GLfloat s ) const
 	{ return mat2( s*_m[0], s*_m[1] ); }
 
     mat2 operator / ( const GLfloat s ) const {
@@ -71,14 +71,14 @@ class mat2 {
 	    return mat2();
 	}
 #endif // DEBUG
-	
+
 	GLfloat r = GLfloat(1.0) / s;
 	return *this * r;
     }
 
     friend mat2 operator * ( const GLfloat s, const mat2& m )
 	{ return m * s; }
-	
+
     mat2 operator * ( const mat2& m ) const {
 	mat2  a( 0.0 );
 
@@ -98,17 +98,17 @@ class mat2 {
     //
 
     mat2& operator += ( const mat2& m ) {
-	_m[0] += m[0];  _m[1] += m[1];  
+	_m[0] += m[0];  _m[1] += m[1];
 	return *this;
     }
 
     mat2& operator -= ( const mat2& m ) {
-	_m[0] -= m[0];  _m[1] -= m[1];  
+	_m[0] -= m[0];  _m[1] -= m[1];
 	return *this;
     }
 
     mat2& operator *= ( const GLfloat s ) {
-	_m[0] *= s;  _m[1] *= s;   
+	_m[0] *= s;  _m[1] *= s;
 	return *this;
     }
 
@@ -125,7 +125,7 @@ class mat2 {
 
         return 	*this = a;
     }
-    
+
     mat2& operator /= ( const GLfloat s ) {
 #ifdef DEBUG
 	if ( std::fabs(s) < DivideByZeroTolerance ) {
@@ -147,11 +147,11 @@ class mat2 {
 	return vec2( _m[0][0]*v.x + _m[0][1]*v.y,
 		     _m[1][0]*v.x + _m[1][1]*v.y );
     }
-	
+
     //
     //  --- Insertion and Extraction Operators ---
     //
-	
+
     friend std::ostream& operator << ( std::ostream& os, const mat2& m )
 	{ return os << std::endl << m[0] << std::endl << m[1] << std::endl; }
 
@@ -187,7 +187,7 @@ mat2 transpose( const mat2& A ) {
 
 //----------------------------------------------------------------------------
 //
-//  mat3 - 3D square matrix 
+//  mat3 - 3D square matrix
 //
 
 class mat3 {
@@ -207,7 +207,7 @@ class mat3 {
 
     mat3( GLfloat m00, GLfloat m10, GLfloat m20,
 	  GLfloat m01, GLfloat m11, GLfloat m21,
-	  GLfloat m02, GLfloat m12, GLfloat m22 ) 
+	  GLfloat m02, GLfloat m12, GLfloat m22 )
 	{
 	    _m[0] = vec3( m00, m10, m20 );
 	    _m[1] = vec3( m01, m11, m21 );
@@ -223,7 +223,7 @@ class mat3 {
 		_m[0] = m._m[0];
 		_m[1] = m._m[1];
 		_m[2] = m._m[2];
-	    } 
+	    }
 	}
 
     //
@@ -243,7 +243,7 @@ class mat3 {
     mat3 operator - ( const mat3& m ) const
 	{ return mat3( _m[0]-m[0], _m[1]-m[1], _m[2]-m[2] ); }
 
-    mat3 operator * ( const GLfloat s ) const 
+    mat3 operator * ( const GLfloat s ) const
 	{ return mat3( s*_m[0], s*_m[1], s*_m[2] ); }
 
     mat3 operator / ( const GLfloat s ) const {
@@ -254,14 +254,14 @@ class mat3 {
 	    return mat3();
 	}
 #endif // DEBUG
-	
+
 	GLfloat r = GLfloat(1.0) / s;
 	return *this * r;
     }
 
     friend mat3 operator * ( const GLfloat s, const mat3& m )
 	{ return m * s; }
-	
+
     mat3 operator * ( const mat3& m ) const {
 	mat3  a( 0.0 );
 
@@ -281,17 +281,17 @@ class mat3 {
     //
 
     mat3& operator += ( const mat3& m ) {
-	_m[0] += m[0];  _m[1] += m[1];  _m[2] += m[2]; 
+	_m[0] += m[0];  _m[1] += m[1];  _m[2] += m[2];
 	return *this;
     }
 
     mat3& operator -= ( const mat3& m ) {
-	_m[0] -= m[0];  _m[1] -= m[1];  _m[2] -= m[2]; 
+	_m[0] -= m[0];  _m[1] -= m[1];  _m[2] -= m[2];
 	return *this;
     }
 
     mat3& operator *= ( const GLfloat s ) {
-	_m[0] *= s;  _m[1] *= s;  _m[2] *= s; 
+	_m[0] *= s;  _m[1] *= s;  _m[2] *= s;
 	return *this;
     }
 
@@ -331,13 +331,13 @@ class mat3 {
 		     _m[1][0]*v.x + _m[1][1]*v.y + _m[1][2]*v.z,
 		     _m[2][0]*v.x + _m[2][1]*v.y + _m[2][2]*v.z );
     }
-	
+
     //
     //  --- Insertion and Extraction Operators ---
     //
-	
+
     friend std::ostream& operator << ( std::ostream& os, const mat3& m ) {
-	return os << std::endl 
+	return os << std::endl
 		  << m[0] << std::endl
 		  << m[1] << std::endl
 		  << m[2] << std::endl;
@@ -417,7 +417,7 @@ class mat4 {
 		_m[1] = m._m[1];
 		_m[2] = m._m[2];
 		_m[3] = m._m[3];
-	    } 
+	    }
 	}
 
     //
@@ -437,7 +437,7 @@ class mat4 {
     mat4 operator - ( const mat4& m ) const
 	{ return mat4( _m[0]-m[0], _m[1]-m[1], _m[2]-m[2], _m[3]-m[3] ); }
 
-    mat4 operator * ( const GLfloat s ) const 
+    mat4 operator * ( const GLfloat s ) const
 	{ return mat4( s*_m[0], s*_m[1], s*_m[2], s*_m[3] ); }
 
     mat4 operator / ( const GLfloat s ) const {
@@ -448,14 +448,14 @@ class mat4 {
 	    return mat4();
 	}
 #endif // DEBUG
-	
+
 	GLfloat r = GLfloat(1.0) / s;
 	return *this * r;
     }
 
     friend mat4 operator * ( const GLfloat s, const mat4& m )
 	{ return m * s; }
-	
+
     mat4 operator * ( const mat4& m ) const {
 	mat4  a( 0.0 );
 
@@ -527,13 +527,13 @@ class mat4 {
 		     _m[3][0]*v.x + _m[3][1]*v.y + _m[3][2]*v.z + _m[3][3]*v.w
 	    );
     }
-	
+
     //
     //  --- Insertion and Extraction Operators ---
     //
-	
+
     friend std::ostream& operator << ( std::ostream& os, const mat4& m ) {
-	return os << std::endl 
+	return os << std::endl
 		  << m[0] << std::endl
 		  << m[1] << std::endl
 		  << m[2] << std::endl
