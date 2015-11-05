@@ -22,7 +22,7 @@ INITOBJLOADER = ../common/objloader.cpp
 LFLAGS = -I/usr/local/include/GLFW -lglfw3
 
 # the name to use for both the target source file, and the output file:
-TARGET = zzz
+TARGET = solar-system
 
 all: $(TARGET)
 

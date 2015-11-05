@@ -1,0 +1,10 @@
+/*------------------------------------------
+Joguinho de Tanques
+Autor:Eduardo Shindi Nanami	- 14/0038540
+      Principios de Computacao Grafica
+-------------------------------------------*/
+
+Joguinho com dois Tanques, no primeiro utilize as teclas WASD para movimentar RT para mirar F para atirar e E para mirar automaticamente
+no segundo utiliza as teclas WASD para movimentar OP para mirar L para atirar.
+
+Para rodar o programa a penas utilize o comando make na pasta

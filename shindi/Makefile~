@@ -1,0 +1,4 @@
+nois :
+	g++ tank.cpp InitShader.cpp -o cubo -lGL -lGLEW -lglut -lm -lSOIL
+	./cubo
+

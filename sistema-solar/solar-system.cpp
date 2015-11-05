@@ -118,15 +118,18 @@ void myDisplay (void )
   // pra dentro do cubo de modelagem
   ModelMatrix = Ortho(-3,3,-3,3,-3,3);
   // Agora vamos Rodar a esfera em Y e encolhe-la em 80%
-  ModelMatrix = Scale(.15) * RotateY(1.5*angulo) * ModelMatrix;
+  ModelMatrix =  Scale(.15) * RotateY(1.5*angulo) * ModelMatrix;
+  // ModelMatrix = Translate(2, 0, 0);// * Scale(.15) * RotateY(1.5*angulo) * ModelMatrix;
   // ModelMatrix = Scale(.20) * RotateZ(1.5*angulo) * RotateY(1.5*angulo) * ModelMatrix;
-  // ModelMatrix = Scale(.20) * Translate(0, 0, 0) * ModelMatrix;
+  // ModelMatrix = Scale(.20) * RotateY(1.5*angulo) * Translate(0, 0, 2);
   // Como vamos usar a projeção ortogonal não mexemos na
   // matriz de visualização
-  ViewMatrix = Scale(1.0);
+  ViewMatrix = Translate(2, 0, 0);
+  // ViewMatrix = Scale(1.0) * Translate(0, 0, -2);
   // E como já estamos dentro do cubo canônico não bulimos com
   // a matriz de projeção
   ProjectionMatrix = Scale(1.0);
+  // ProjectionMatrix = Ortho(-5,5,-5,5,-5,5);
 
   MVP = ProjectionMatrix * ViewMatrix  * ModelMatrix;
 
@@ -141,7 +144,7 @@ void myDisplay (void )
 
 int main( void )
 {
-  window = inicia_glfw(3, 3, "Carregando Modelos .obj");
+  window = inicia_glfw(3, 3, "Sistema Solar");
   if( window == NULL )
     {
       fprintf( stderr, "Failed to open GLFW window.\n");
