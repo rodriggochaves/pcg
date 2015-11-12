@@ -39,6 +39,8 @@ mat4 projection, view, model;
 GLuint projectionLoc, viewLoc, modelLoc;
 GLuint textureLoc, texture;
 
+
+
 /******************************************************/
 /*    Janela: Esfera com textura com ilumação         */
 /******************************************************/
@@ -101,7 +103,7 @@ GLuint myInit_IlumTexture(GLFWwindow* fenetre, const char* vs, const char* fs)
 
   int width, height;
   unsigned char* imagem =
-    SOIL_load_image("./planet_Quom1200.png", &width, &height, 0, SOIL_LOAD_RGB);
+    SOIL_load_image("./preview_sun.jpg", &width, &height, 0, SOIL_LOAD_RGB);
   glBindTexture( GL_TEXTURE_2D, texture );
   glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,
 		GL_RGB, GL_UNSIGNED_BYTE, imagem );
@@ -129,6 +131,125 @@ GLuint myInit_IlumTexture(GLFWwindow* fenetre, const char* vs, const char* fs)
   color4 light_ambient(  0.3, 0.3, 0.3, 1.0 );
   color4 light_diffuse(  0.3, 0.3, 0.3, 1.0 );
   color4 light_specular( 1.0, 1.0, 1.0, 1.0 );
+
+  color4 material_ambient(  1.0, 0.8, 1.0, 1.0 );
+  color4 material_diffuse(  1.0, 0.8, 0.8, 1.0 );
+  color4 material_specular( 1.0, 1.0, 1.0, 1.0 );
+  float  material_shininess = 250.0;
+
+  color4 ambient_product  = light_ambient * material_ambient;
+  color4 diffuse_product  = light_diffuse * material_diffuse;
+  color4 specular_product = light_specular * material_specular;
+
+
+  glUniform4fv( glGetUniformLocation(program, "AmbientProduct"),
+		1, ambient_product );
+
+  glUniform4fv( glGetUniformLocation(program, "DiffuseProduct"),
+		1, diffuse_product );
+
+  glUniform4fv( glGetUniformLocation(program, "SpecularProduct"),
+		1, specular_product );
+
+  glUniform4fv( glGetUniformLocation(program, "LightPosition"),
+		1, light_position );
+
+  glUniform1f( glGetUniformLocation(program, "Shininess"),
+	       material_shininess );
+
+  return program;
+}
+
+/******************************************************/
+/*    Janela: Esfera com textura com ilumação         */
+/******************************************************/
+GLuint myInit_Sun(GLFWwindow* fenetre, const char* vs, const char* fs)
+{
+  glfwMakeContextCurrent(fenetre);
+
+  // Load shaders and use the resulting shader program
+  GLuint program = InitShader( vs, fs );
+  glUseProgram(program);
+
+  // define a cor de fundo da janela: fundo ciano
+  // glClearColor(0.0, 1.0, 1.0, 1.0f);
+  glClearColor(0.9, 0.9, 0.9, 0.9f);
+
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LESS);
+  glEnable(GL_CULL_FACE);
+
+  glGenVertexArrays(1, &VAO);
+  glBindVertexArray(VAO);
+  // Read our .obj file
+  bool res = loadOBJ("esfera.obj", vertices, uvs, normals);
+
+  // precisamos carregar as coordenadas de textura na GPU
+  glGenBuffers(1, &vb);
+  glBindBuffer(GL_ARRAY_BUFFER, vb);
+  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vec3),
+	       &vertices[0], GL_STATIC_DRAW);
+  // precisamos carregar as coordenadas de textura na GPU
+  glGenBuffers(1, &nb);
+  glBindBuffer(GL_ARRAY_BUFFER, nb);
+  glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(vec3),
+	       &normals[0], GL_STATIC_DRAW);
+  // precisamos carregar as coordenadas de textura na GPU
+  glGenBuffers(1, &uvb);
+  glBindBuffer(GL_ARRAY_BUFFER, uvb);
+  glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(vec2),
+	       &uvs[0], GL_STATIC_DRAW);
+
+  // 1st attribute buffer : vertices
+  glEnableVertexAttribArray(0);
+  glBindBuffer(GL_ARRAY_BUFFER, vb);
+  glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0 );
+
+  // 2nd attribute buffer : UVs (coord de textura)
+  glEnableVertexAttribArray(2);
+  glBindBuffer(GL_ARRAY_BUFFER, uvb);
+  glVertexAttribPointer( 2, 2, GL_FLOAT, GL_FALSE, 0, (void*)0 );
+
+  //3rd attribute buffer : Normals
+  glEnableVertexAttribArray(1);
+  glBindBuffer(GL_ARRAY_BUFFER, nb);
+  glVertexAttribPointer( 1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0 );
+
+  /* **************** manipulando as texturas********************* */
+  /*****************************************************************/
+  glGenTextures( 1, &texture );
+  glBindTexture(GL_TEXTURE_2D, texture);
+
+  int width, height;
+  unsigned char* imagem =
+    SOIL_load_image("./preview_sun.jpg", &width, &height, 0, SOIL_LOAD_RGB);
+  glBindTexture( GL_TEXTURE_2D, texture );
+  glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,
+		GL_RGB, GL_UNSIGNED_BYTE, imagem );
+
+  glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+  glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+  glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+  glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+
+  SOIL_free_image_data(imagem);
+
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, texture);
+  // Set our "myTextureSampler" sampler to user Texture Unit 0
+  glUniform1i(textureLoc, 0);
+
+  /* **************** manipulando as texturas********************* */
+  /*****************************************************************/
+
+  //ILUMINAÇÂO
+
+  // Initialize shader lighting parameters
+
+  point4 light_position( 0.0, 0.0, 5.0, 0.0 );
+  color4 light_ambient(  0.3, 0.3, 0.3, 1.0 );
+  color4 light_diffuse(  1.0, 1.0, 1.0, 1.0 );
+  color4 light_specular( 10000.0, 10000.0, 10000.0, 1.0 );
 
   color4 material_ambient(  1.0, 0.8, 1.0, 1.0 );
   color4 material_diffuse(  1.0, 0.8, 0.8, 1.0 );
@@ -301,7 +422,7 @@ int main( void )
 	planet = myInit_IlumTexture(window, "t4.vert", "bpt.frag" );
 
 	GLuint sun;//nomes dos Shaders Programs
-	sun = myInit_IlumTexture(window, "t4.vert", "bpt.frag" );
+	sun = myInit_Sun(window, "t4.vert", "bpt.frag" );
 
 	GLuint moon;//nomes dos Shaders Programs
 	moon = myInit_IlumTexture(window, "t4.vert", "bpt.frag" );

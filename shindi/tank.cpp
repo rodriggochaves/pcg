@@ -2,7 +2,7 @@
 // which are sent to vertex shader where rotation takes place
 
 #include "Angel.h"
-#include "Ralha.h"
+#include "./Ralha.h"
 #include <math.h>
 #include <SOIL/SOIL.h>
 
@@ -292,8 +292,8 @@ void init( void )
 
   // Create a vertex array object
   GLuint vao;
-  glGenVertexArrays( 1, &vao );
-  glBindVertexArray( vao );
+  glGenVertexArraysAPPLE( 1, &vao );
+  glBindVertexArrayAPPLE( vao );
 
   // Create and initalize a buffer object
   GLuint buffer;
@@ -557,7 +557,8 @@ int main (int argc, char **argv)
   glutInitDisplayMode( GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH );
   glutInitWindowSize( 800, 800 );
   glutCreateWindow( "Joguinho de tanques" );
-  glewInit( );
+  inicia_glew();
+  // glewInit( );
   init( );
   glutDisplayFunc( display );
   glutKeyboardFunc( keyPressed );
