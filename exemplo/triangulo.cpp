@@ -18,9 +18,6 @@ point4 points[3] = {
 GLFWwindow *window;
 
 
-
-
-
 int main (int argc, char** argv) {
   window = inicia_glfw(3, 3, "Meu 1º Triângulo");
   inicia_glew ( );
