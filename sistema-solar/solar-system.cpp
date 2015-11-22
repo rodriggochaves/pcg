@@ -5,8 +5,6 @@
 */
 #include "../includes/Ralha.h"
 #include <SOIL/SOIL.h>
-
-
 #include "../common/objloader.hpp"
 
 
@@ -66,7 +64,6 @@ void myInit ( void )
   glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
 
   SOIL_free_image_data(imagem);
-
 
   // Get a handle for our "myTextureSampler" uniform
   TextureID  = glGetUniformLocation(programID, "myTextureSampler");
