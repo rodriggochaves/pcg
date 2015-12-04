@@ -1,9 +1,7 @@
 #include "./includes/Ralha.h"
 
-
 typedef Angel::vec4 point4;
 typedef Angel::vec4 color4;
-
 
 void myDisplay( GLuint program );
 GLuint myInit( void );

@@ -197,29 +197,29 @@ void myInit( void ) {
 	glVertexAttribPointer( 1,	2, GL_FLOAT, GL_FALSE, 0, (void*)0 );
 
 	// an white background, plis
-  	// glClearColor( 1.0, 1.0, 1.0, 1.0 );
+  	glClearColor( 1.0, 1.0, 1.0, 1.0 );
   	 
-  	std::vector<const GLchar*> faces;
-	faces.push_back("siege_rt.jpg");
-	faces.push_back("siege_lf.jpg");
-	faces.push_back("siege_up.jpg");
-	faces.push_back("siege_dn.jpg");
-	faces.push_back("siege_bk.jpg");
-	faces.push_back("siege_ft.jpg");
-	GLuint cubemapTexture = loadCubemap(faces);
+ //  	std::vector<const GLchar*> faces;
+	// faces.push_back("siege_rt.tga");
+	// faces.push_back("siege_lf.tga");
+	// faces.push_back("siege_up.tga");
+	// faces.push_back("siege_dn.tga");
+	// faces.push_back("siege_bk.tga");
+	// faces.push_back("siege_ft.tga");
+	// GLuint cubemapTexture = loadCubemap(faces);
 
-	skyboxShader = InitShader( "./skybox.vert", "./skybox.frag" );
+	// skyboxShader = InitShader( "./skybox.vert", "./skybox.frag" );
 
-	glDepthMask(GL_FALSE);
-	// skyboxShader.Use();
-	glUseProgram(skyboxShader);
-	// ... Set view and projection matrix
-	glEnableVertexAttribArray(2);
-	glBindVertexArray(skyboxVAO);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
-	glBindVertexArray(0);
-	glDepthMask(GL_TRUE);
+	// glDepthMask(GL_FALSE);
+	// // skyboxShader.Use();
+	// glUseProgram(skyboxShader);
+	// // ... Set view and projection matrix
+	// glEnableVertexAttribArray(2);
+	// glBindVertexArray(skyboxVAO);
+	// glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+	// glDrawArrays(GL_TRIANGLES, 0, 36);
+	// glBindVertexArray(0);
+	// glDepthMask(GL_TRUE);
 	// ... Draw rest of the scene 
 
 
