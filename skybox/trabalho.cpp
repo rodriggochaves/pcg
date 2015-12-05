@@ -24,9 +24,9 @@ using namespace glm;
 #include "common/controls.hpp"
 
 // custom includes learnopengl
-#include "learnopengl/shader.h"
-#include "learnopengl/camera.h"
-#include "learnopengl/filesystem.h"
+#include "learnopenglincludes/shader.h"
+#include "learnopenglincludes/camera.h"
+#include "learnopenglincludes/filesystem.h"
 
 // Function prototypes
 void key_callback(GLFWwindow* window, int key, int scancode, 
