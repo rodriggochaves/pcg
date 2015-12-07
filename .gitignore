@@ -1,3 +1,6 @@
 # ignores tutorial files
 LearnOpenGL/
 ogl/
+
+# ignores all .zip
+*.zip

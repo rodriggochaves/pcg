@@ -1,4 +1,4 @@
-#include "includes/Ralha.h"
+#include "../includes/Ralha.h"
 
 GLFWwindow* inicia_glfw (short int major, 
 				   short int minor,
