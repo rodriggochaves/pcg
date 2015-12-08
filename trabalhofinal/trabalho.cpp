@@ -125,18 +125,56 @@ int main( void )
     glGenVertexArrays(1, &VertexArrayID);
     glBindVertexArray(VertexArrayID);
 
-    // Create and compile our GLSL program from the shaders
-    GLuint programID = LoadShaders( "vextershader.vert", 
-        "fragmentshader.frag" );
-
-    // Get a handle for our "MVP" uniform
-    GLuint MatrixID = glGetUniformLocation(programID, "MVP");
-
     // Setup and compile our shaders
     Shader shader("cubemaps.vs", "cubemaps.frag");
     Shader skyboxShader("skybox.vs", "skybox.frag");
 
 #pragma region "object_initialization"
+    GLfloat cubeVertices[] = {
+        // Positions          // Normals
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
+        0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
+        0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
+        0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
+        -0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
+
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
+        0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
+        0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
+        0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
+        -0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
+
+        -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f,
+        -0.5f, 0.5f, -0.5f, -1.0f, 0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f,
+        -0.5f, -0.5f, 0.5f, -1.0f, 0.0f, 0.0f,
+        -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f,
+
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
+        0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
+        0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
+        0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
+
+        -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f,
+        0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f,
+        0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f,
+        0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f,
+        -0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f,
+
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+        0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+        0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f,
+        0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f,
+        -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f,
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f
+    };
+
     // Set the object data (buffers, vertex attributes)
     GLfloat skyboxVertices[] = {
         // Positions          
@@ -183,7 +221,21 @@ int main( void )
         1.0f, -1.0f, 1.0f
     };
 
-    
+    // setup cubeVAO and cubeVBO
+    GLuint cubeVAO, cubeVBO;
+    glGenVertexArrays(1, &cubeVAO);
+    glGenBuffers(1, &cubeVBO);
+    glBindVertexArray(cubeVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), &cubeVertices, 
+    	GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 
+    	(GLvoid*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 
+    	(GLvoid*)(3 * sizeof(GLfloat)));
+
     // Setup skybox VAO
     GLuint skyboxVAO, skyboxVBO;
     glGenVertexArrays(1, &skyboxVAO);
@@ -209,128 +261,6 @@ int main( void )
     faces.push_back("resources/lake/front.jpg");
     //carrega na skybox as imagens
     GLuint skyboxTexture = loadCubemap(faces);
-
-    // Projection matrix : 45° Field of View, 4:3 ratio, 
-    // display range : 0.1 unit <-> 100 units
-    glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 
-        4.0f / 3.0f, 0.1f, 100.0f);
-    // Camera matrix
-    glm::mat4 View       = glm::lookAt(
-                                // Camera is at (4,3,3), in World Space
-                                glm::vec3(4,3,3),
-                                // and looks at the origin
-                                glm::vec3(0,0,0),
-                                // Head is up (set to 0,-1,0 
-                                // to look upside-down) 
-                                glm::vec3(0,1,0) 
-                           );
-    // Model matrix : an identity matrix (model will be at the origin)
-    glm::mat4 Model      = glm::mat4(1.0f);
-    // Our ModelViewProjection : multiplication of our 3 matrices
-    glm::mat4 MVP        = Projection * View * Model; // Remember, 
-    // matrix multiplication is the other way around
-
-    // Load the texture using any two methods
-    GLuint Texture = loadBMP_custom("uvtemplate.bmp");
-    // GLuint Texture = loadDDS("uvtemplate.DDS");
-    
-    // Get a handle for our "myTextureSampler" uniform
-    GLuint TextureID  = glGetUniformLocation(programID, "myTextureSampler");
-
-    // Our vertices. Tree consecutive floats give a 3D vertex; 
-    // Three consecutive vertices give a triangle.
-    // A cube has 6 faces with 2 triangles each,
-    //  so this makes 6*2=12 triangles, and 12*3 vertices
-    static const GLfloat g_vertex_buffer_data[] = { 
-        -1.0f,-1.0f,-1.0f,
-        -1.0f,-1.0f, 1.0f,
-        -1.0f, 1.0f, 1.0f,
-         1.0f, 1.0f,-1.0f,
-        -1.0f,-1.0f,-1.0f,
-        -1.0f, 1.0f,-1.0f,
-         1.0f,-1.0f, 1.0f,
-        -1.0f,-1.0f,-1.0f,
-         1.0f,-1.0f,-1.0f,
-         1.0f, 1.0f,-1.0f,
-         1.0f,-1.0f,-1.0f,
-        -1.0f,-1.0f,-1.0f,
-        -1.0f,-1.0f,-1.0f,
-        -1.0f, 1.0f, 1.0f,
-        -1.0f, 1.0f,-1.0f,
-         1.0f,-1.0f, 1.0f,
-        -1.0f,-1.0f, 1.0f,
-        -1.0f,-1.0f,-1.0f,
-        -1.0f, 1.0f, 1.0f,
-        -1.0f,-1.0f, 1.0f,
-         1.0f,-1.0f, 1.0f,
-         1.0f, 1.0f, 1.0f,
-         1.0f,-1.0f,-1.0f,
-         1.0f, 1.0f,-1.0f,
-         1.0f,-1.0f,-1.0f,
-         1.0f, 1.0f, 1.0f,
-         1.0f,-1.0f, 1.0f,
-         1.0f, 1.0f, 1.0f,
-         1.0f, 1.0f,-1.0f,
-        -1.0f, 1.0f,-1.0f,
-         1.0f, 1.0f, 1.0f,
-        -1.0f, 1.0f,-1.0f,
-        -1.0f, 1.0f, 1.0f,
-         1.0f, 1.0f, 1.0f,
-        -1.0f, 1.0f, 1.0f,
-         1.0f,-1.0f, 1.0f
-    };
-
-    // Two UV coordinatesfor each vertex. They were created withe Blender.
-    static const GLfloat g_uv_buffer_data[] = { 
-        0.000059f, 1.0f-0.000004f, 
-        0.000103f, 1.0f-0.336048f, 
-        0.335973f, 1.0f-0.335903f, 
-        1.000023f, 1.0f-0.000013f, 
-        0.667979f, 1.0f-0.335851f, 
-        0.999958f, 1.0f-0.336064f, 
-        0.667979f, 1.0f-0.335851f, 
-        0.336024f, 1.0f-0.671877f, 
-        0.667969f, 1.0f-0.671889f, 
-        1.000023f, 1.0f-0.000013f, 
-        0.668104f, 1.0f-0.000013f, 
-        0.667979f, 1.0f-0.335851f, 
-        0.000059f, 1.0f-0.000004f, 
-        0.335973f, 1.0f-0.335903f, 
-        0.336098f, 1.0f-0.000071f, 
-        0.667979f, 1.0f-0.335851f, 
-        0.335973f, 1.0f-0.335903f, 
-        0.336024f, 1.0f-0.671877f, 
-        1.000004f, 1.0f-0.671847f, 
-        0.999958f, 1.0f-0.336064f, 
-        0.667979f, 1.0f-0.335851f, 
-        0.668104f, 1.0f-0.000013f, 
-        0.335973f, 1.0f-0.335903f, 
-        0.667979f, 1.0f-0.335851f, 
-        0.335973f, 1.0f-0.335903f, 
-        0.668104f, 1.0f-0.000013f, 
-        0.336098f, 1.0f-0.000071f, 
-        0.000103f, 1.0f-0.336048f, 
-        0.000004f, 1.0f-0.671870f, 
-        0.336024f, 1.0f-0.671877f, 
-        0.000103f, 1.0f-0.336048f, 
-        0.336024f, 1.0f-0.671877f, 
-        0.335973f, 1.0f-0.335903f, 
-        0.667969f, 1.0f-0.671889f, 
-        1.000004f, 1.0f-0.671847f, 
-        0.667979f, 1.0f-0.335851f
-    };
-
-    GLuint vertexbuffer;
-    glGenBuffers(1, &vertexbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), 
-        g_vertex_buffer_data, GL_STATIC_DRAW);
-
-    GLuint uvbuffer;
-    glGenBuffers(1, &uvbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(g_uv_buffer_data),
-        g_uv_buffer_data, GL_STATIC_DRAW);
 
     // Setup and compile our shaders
     Shader objShader("objshader.vs", "objshader.frag");
@@ -371,28 +301,72 @@ int main( void )
              camera.Position.x, camera.Position.y, camera.Position.z);
 
         // Cubes
+     //    glBindVertexArray(cubeVAO);
+     //    glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);
+    	// for (int i = 0; i < 10; ++i)
+    	// {
+    	// 	glEnableVertexAttribArray(2);
+	    // 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 
+	    // 	(GLvoid*)(i * sizeof(GLfloat)));
+	    // 	glDrawArrays(GL_TRIANGLES, 0, 36);
+    	// }
+    	// glBindVertexArray(0);
+
+        // glBindVertexArray(cubeVAO);
         glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
         
-        //desenha a bola
-        objShader.Use();   // <-- Don't forget this one!
-        glUniformMatrix4fv(glGetUniformLocation(objShader.Program, 
-        	"projection"), 1, GL_FALSE, glm::value_ptr(projection));
-        glUniformMatrix4fv(glGetUniformLocation(objShader.Program, "view"), 
-        	1, GL_FALSE, glm::value_ptr(view));
-        //mudando a posição da bola e o tamanho dela
-        model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); 
-        model = glm::rotate(model, rotAngle, glm::vec3(2.0f, 0.0f, 0.0f));
-        // Translate it down a bit so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f)); 
-        // It's a bit too big for our scene, so scale it down
-        // 3. Rotation: add random rotation around a (semi)randomly picked
-        // rotation axis vector
-        glUniformMatrix4fv(glGetUniformLocation(objShader.Program, 
-        	"model"), 1, GL_FALSE, glm::value_ptr(model));
-        objModel.Draw(objShader);
         
+        objShader.Use();   // <-- Don't forget this one!
+        // glUniformMatrix4fv(glGetUniformLocation(objShader.Program, 
+        // 	"projection"), 1, GL_FALSE, glm::value_ptr(projection));
+        // glUniformMatrix4fv(glGetUniformLocation(objShader.Program, "view"), 
+        // 	1, GL_FALSE, glm::value_ptr(view));
+
+        // // tranformations matrix
+        // // Translate it down a bit so it's at the center of the scene
+        // model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); 
+        // // It's a bit too big for our scene, so scale it down
+        // model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f)); 
+        // // Rotation: add random rotation around a (semi)randomly picked
+        // model = glm::rotate(model, rotAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+        // // rotation axis vector
+        // glUniformMatrix4fv(glGetUniformLocation(objShader.Program, 
+        // 	"model"), 1, GL_FALSE, glm::value_ptr(model));
+        // objModel.Draw(objShader);
+        
+        glUniformMatrix4fv(glGetUniformLocation(objShader.Program, 
+	    	"projection"), 1, GL_FALSE, glm::value_ptr(projection));
+	    glUniformMatrix4fv(glGetUniformLocation(objShader.Program, "view"), 
+	    	1, GL_FALSE, glm::value_ptr(view));
+	   	// It's a bit too big for our scene, so scale it down
+	    model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+	    // Rotation: add random rotation around a (semi)randomly picked
+	    // model = glm::rotate(model, rotAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+        
+      	GLfloat X = 3;
+
+        for (int i = 0; i < X; ++i)
+        {
+		    for (int j = 0; j < X; ++j)
+		    {
+		    	for (int k = 0; k < X; ++k)
+		    	{
+		    		// Translate it down a bit so 
+		    		// it's at the center of the scene
+				    model = glm::translate(model, glm::vec3(5.0f, 0.0f, 0.0f));  
+				    // rotation axis vector
+				    glUniformMatrix4fv(glGetUniformLocation(objShader.Program, 
+				    	"model"), 1, GL_FALSE, glm::value_ptr(model));
+				    objModel.Draw(objShader);
+		    	}
+		    	model = glm::translate(model, glm::vec3(-5.0f * X, 5.0f, 0.0f));
+		    }
+		    model = glm::translate(model, glm::vec3(0.0f, -5.0f * X, 
+		    	5.0f));  
+        }
+
         // Draw skybox as last
         glDepthFunc(GL_LEQUAL);  // Change depth function so depth 
         // test passes when values are equal to depth buffer's content
@@ -405,7 +379,6 @@ int main( void )
             "projection"), 1, GL_FALSE, glm::value_ptr(projection));
         // skybox cube
         glBindVertexArray(skyboxVAO);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, Texture);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
         glDepthFunc(GL_LESS); // Set depth function back to default
@@ -413,17 +386,13 @@ int main( void )
         // Swap buffers
         glfwSwapBuffers(window);
 
-        rotAngle += 0.5f;
+        rotAngle += 0.1f;
 
     } // Check if the ESC key was pressed or the window was closed
     while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
            glfwWindowShouldClose(window) == 0 );
-    //limpando a casa
-    // Cleanup VBO and shader
-    glDeleteBuffers(1, &vertexbuffer);
-    glDeleteBuffers(1, &uvbuffer);
-    glDeleteProgram(programID);
-    glDeleteTextures(1, &TextureID);
+    
+    // housekeeping
     glDeleteVertexArrays(1, &VertexArrayID);
 
     // Close OpenGL window and terminate GLFW

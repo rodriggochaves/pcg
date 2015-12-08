@@ -138,8 +138,8 @@ private:
                 indices.push_back(face.mIndices[j]);
         }
         // Process materials
-        if(mesh->mMaterialIndex >= 0)
-        {
+        // if(mesh->mMaterialIndex >= 0)
+        // {
             aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
             // We assume a convention for sampler names in the shaders. Each diffuse texture should be named
             // as 'texture_diffuseN' where N is a sequential number ranging from 1 to MAX_SAMPLER_NUMBER. 
@@ -160,7 +160,7 @@ private:
             // 4. Height maps
             std::vector<Texture> heightMaps = this->loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
             textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
-        }
+        // }
         
         // Return a mesh object created from the extracted mesh data
         return Mesh(vertices, indices, textures);
