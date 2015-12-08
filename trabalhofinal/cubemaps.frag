@@ -8,7 +8,7 @@ uniform samplerCube skybox;
 
 void main()
 {
-	float ratio = 1.00 / 2.42;
+	float ratio = 1.00 / 1.25;
     vec3 I = normalize(Position - cameraPos);
     // vec3 R = reflect(I, normalize(Normal));
     vec3 R = refract(I, normalize(Normal), ratio);

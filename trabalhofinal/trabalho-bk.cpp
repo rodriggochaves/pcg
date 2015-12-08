@@ -109,11 +109,18 @@ int main( void )
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
+	// Create and compile our GLSL program from the shaders
+	// GLuint programID = LoadShaders( "vextershader.vert", 
+	// 	"fragmentshader.frag" );
+
+	// Get a handle for our "MVP" uniform
+	// GLuint MatrixID = glGetUniformLocation(programID, "MVP");
+
 	// Setup and compile our shaders
     Shader shader("cubemaps.vs", "cubemaps.frag");
 	Shader skyboxShader("skybox.vs", "skybox.frag");
 
-	#pragma region "object_initialization"
+#pragma region "object_initialization"
     // Set the object data (buffers, vertex attributes)
     GLfloat cubeVertices[] = {
         // Positions          // Normals
@@ -204,12 +211,28 @@ int main( void )
         1.0f, -1.0f, 1.0f
     };
 
-    GLuint amount = 100000;
-    glm::mat4* modelMatrices;
-    modelMatrices = new glm::mat4[amount];
+    // We do need to actually set the offset positions that we calculate 
+    // in a nested for-loop before we enter the game loop:
+	glm::vec2 translations[100];
+	int index = 0;
+	GLfloat offset = 0.1f;
+	for(GLint y = -10; y < 10; y += 2)
+	{
+	    for(GLint x = -10; x < 10; x += 2)
+	    {
+	        glm::vec2 translation;
+	        translation.x = (GLfloat)x / 10.0f + offset;
+	        translation.y = (GLfloat)y / 10.0f + offset;
+	        translations[index++] = translation;
+	    }
+	}
 
-    glm::mat4 projection = glm::perspective(camera.Zoom, 
-        	(float)screenWidth / (float)screenHeight, 0.1f, 100.0f);
+	GLuint instanceVBO;
+    glGenBuffers(1, &instanceVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 100, &translations[0], 
+    	GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     // Setup cube VAO
     GLuint cubeVAO, cubeVBO;
@@ -225,6 +248,15 @@ int main( void )
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 
     	(GLvoid*)(3 * sizeof(GLfloat)));
+    // Also set instance data
+    glEnableVertexAttribArray(2);
+    glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), 
+    	(GLvoid*)0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);	
+    glVertexAttribDivisor(2, 1); // Tell OpenGL 
+    	// this is an instanced vertex attribute.
+    glBindVertexArray(0);
 
     // Setup skybox VAO
     GLuint skyboxVAO, skyboxVBO;
@@ -237,7 +269,7 @@ int main( void )
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
     glBindVertexArray(0);
 
-	#pragma endregion
+#pragma endregion
 
     // Cubemap (Skybox)
     std::vector<const GLchar*> faces;
@@ -248,6 +280,142 @@ int main( void )
     faces.push_back("resources/lake/back.jpg");
     faces.push_back("resources/lake/front.jpg");
     GLuint skyboxTexture = loadCubemap(faces);
+
+ //    GLuint instanceVBO;
+	// glGenBuffers(1, &instanceVBO);
+	// glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+	// glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 100, &translations[0], 
+	// 		GL_STATIC_DRAW);
+	// glBindBuffer(GL_ARRAY_BUFFER, 0); 
+
+	// glEnableVertexAttribArray(2);
+	// glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+	// glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), 
+	// 		(GLvoid*)0);
+	// glBindBuffer(GL_ARRAY_BUFFER, 0);	
+	// glVertexAttribDivisor(2, 1);  
+
+	// Projection matrix : 45° Field of View, 4:3 ratio, 
+	// // display range : 0.1 unit <-> 100 units
+	// glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 
+	// 	4.0f / 3.0f, 0.1f, 100.0f);
+	// // Camera matrix
+	// glm::mat4 View       = glm::lookAt(
+	// 							// Camera is at (4,3,3), in World Space
+	// 							glm::vec3(4,3,3),
+	// 							// and looks at the origin
+	// 							glm::vec3(0,0,0),
+	// 							// Head is up (set to 0,-1,0 
+	// 							// to look upside-down) 
+	// 							glm::vec3(0,1,0) 
+	// 					   );
+	// // Model matrix : an identity matrix (model will be at the origin)
+	// glm::mat4 Model      = glm::mat4(1.0f);
+	// // Our ModelViewProjection : multiplication of our 3 matrices
+	// glm::mat4 MVP        = Projection * View * Model; // Remember, 
+	// matrix multiplication is the other way around
+
+	// Load the texture using any two methods
+	// GLuint Texture = loadBMP_custom("uvtemplate.bmp");
+	// GLuint Texture = loadDDS("uvtemplate.DDS");
+	
+	// Get a handle for our "myTextureSampler" uniform
+	// GLuint TextureID  = glGetUniformLocation(programID, "myTextureSampler");
+
+	// Our vertices. Tree consecutive floats give a 3D vertex; 
+	// Three consecutive vertices give a triangle.
+	// A cube has 6 faces with 2 triangles each,
+	//  so this makes 6*2=12 triangles, and 12*3 vertices
+	// static const GLfloat g_vertex_buffer_data[] = { 
+	// 	-1.0f,-1.0f,-1.0f,
+	// 	-1.0f,-1.0f, 1.0f,
+	// 	-1.0f, 1.0f, 1.0f,
+	// 	 1.0f, 1.0f,-1.0f,
+	// 	-1.0f,-1.0f,-1.0f,
+	// 	-1.0f, 1.0f,-1.0f,
+	// 	 1.0f,-1.0f, 1.0f,
+	// 	-1.0f,-1.0f,-1.0f,
+	// 	 1.0f,-1.0f,-1.0f,
+	// 	 1.0f, 1.0f,-1.0f,
+	// 	 1.0f,-1.0f,-1.0f,
+	// 	-1.0f,-1.0f,-1.0f,
+	// 	-1.0f,-1.0f,-1.0f,
+	// 	-1.0f, 1.0f, 1.0f,
+	// 	-1.0f, 1.0f,-1.0f,
+	// 	 1.0f,-1.0f, 1.0f,
+	// 	-1.0f,-1.0f, 1.0f,
+	// 	-1.0f,-1.0f,-1.0f,
+	// 	-1.0f, 1.0f, 1.0f,
+	// 	-1.0f,-1.0f, 1.0f,
+	// 	 1.0f,-1.0f, 1.0f,
+	// 	 1.0f, 1.0f, 1.0f,
+	// 	 1.0f,-1.0f,-1.0f,
+	// 	 1.0f, 1.0f,-1.0f,
+	// 	 1.0f,-1.0f,-1.0f,
+	// 	 1.0f, 1.0f, 1.0f,
+	// 	 1.0f,-1.0f, 1.0f,
+	// 	 1.0f, 1.0f, 1.0f,
+	// 	 1.0f, 1.0f,-1.0f,
+	// 	-1.0f, 1.0f,-1.0f,
+	// 	 1.0f, 1.0f, 1.0f,
+	// 	-1.0f, 1.0f,-1.0f,
+	// 	-1.0f, 1.0f, 1.0f,
+	// 	 1.0f, 1.0f, 1.0f,
+	// 	-1.0f, 1.0f, 1.0f,
+	// 	 1.0f,-1.0f, 1.0f
+	// };
+
+	// // Two UV coordinatesfor each vertex. They were created withe Blender.
+	// static const GLfloat g_uv_buffer_data[] = { 
+	// 	0.000059f, 1.0f-0.000004f, 
+	// 	0.000103f, 1.0f-0.336048f, 
+	// 	0.335973f, 1.0f-0.335903f, 
+	// 	1.000023f, 1.0f-0.000013f, 
+	// 	0.667979f, 1.0f-0.335851f, 
+	// 	0.999958f, 1.0f-0.336064f, 
+	// 	0.667979f, 1.0f-0.335851f, 
+	// 	0.336024f, 1.0f-0.671877f, 
+	// 	0.667969f, 1.0f-0.671889f, 
+	// 	1.000023f, 1.0f-0.000013f, 
+	// 	0.668104f, 1.0f-0.000013f, 
+	// 	0.667979f, 1.0f-0.335851f, 
+	// 	0.000059f, 1.0f-0.000004f, 
+	// 	0.335973f, 1.0f-0.335903f, 
+	// 	0.336098f, 1.0f-0.000071f, 
+	// 	0.667979f, 1.0f-0.335851f, 
+	// 	0.335973f, 1.0f-0.335903f, 
+	// 	0.336024f, 1.0f-0.671877f, 
+	// 	1.000004f, 1.0f-0.671847f, 
+	// 	0.999958f, 1.0f-0.336064f, 
+	// 	0.667979f, 1.0f-0.335851f, 
+	// 	0.668104f, 1.0f-0.000013f, 
+	// 	0.335973f, 1.0f-0.335903f, 
+	// 	0.667979f, 1.0f-0.335851f, 
+	// 	0.335973f, 1.0f-0.335903f, 
+	// 	0.668104f, 1.0f-0.000013f, 
+	// 	0.336098f, 1.0f-0.000071f, 
+	// 	0.000103f, 1.0f-0.336048f, 
+	// 	0.000004f, 1.0f-0.671870f, 
+	// 	0.336024f, 1.0f-0.671877f, 
+	// 	0.000103f, 1.0f-0.336048f, 
+	// 	0.336024f, 1.0f-0.671877f, 
+	// 	0.335973f, 1.0f-0.335903f, 
+	// 	0.667969f, 1.0f-0.671889f, 
+	// 	1.000004f, 1.0f-0.671847f, 
+	// 	0.667979f, 1.0f-0.335851f
+	// };
+
+	// GLuint vertexbuffer;
+	// glGenBuffers(1, &vertexbuffer);
+	// glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+	// glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), 
+	// 	g_vertex_buffer_data, GL_STATIC_DRAW);
+
+	// GLuint uvbuffer;
+	// glGenBuffers(1, &uvbuffer);
+	// glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
+	// glBufferData(GL_ARRAY_BUFFER, sizeof(g_uv_buffer_data), 
+	// 	g_uv_buffer_data, GL_STATIC_DRAW);
 
 	do{
 
@@ -263,10 +431,65 @@ int main( void )
 		// Clear the screen
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		// Use our shader
+		// glUseProgram(programID);
+
+		// Compute the MVP matrix from keyboard and mouse input
+		// computeMatricesFromInputs();
+		// glm::mat4 ProjectionMatrix = getProjectionMatrix();
+		// glm::mat4 ViewMatrix = getViewMatrix();
+		// glm::mat4 ModelMatrix = glm::mat4(1.0);
+		// glm::mat4 MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
+
+		// Send our transformation to the currently bound shader, 
+		// in the "MVP" uniform
+		// glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+		// // Bind our texture in Texture Unit 0
+		// glActiveTexture(GL_TEXTURE0);
+		// glBindTexture(GL_TEXTURE_2D, Texture);
+		// // Set our "myTextureSampler" sampler to user Texture Unit 0
+		// glUniform1i(TextureID, 0);
+
+		// // 1rst attribute buffer : vertices
+		// glEnableVertexAttribArray(0);
+		// glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+		// glVertexAttribPointer(
+		// 	0,                  // attribute. No particular reason for 0, 
+		// 	//but must match the layout in the shader.
+		// 	3,                  // size
+		// 	GL_FLOAT,           // type
+		// 	GL_FALSE,           // normalized?
+		// 	0,                  // stride
+		// 	(void*)0            // array buffer offset
+		// );
+
+		// // 2nd attribute buffer : UVs
+		// glEnableVertexAttribArray(1);
+		// glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
+		// glVertexAttribPointer(
+		// 	1,                                // attribute. No particular 
+		// 	//reason for 1, but must match the layout in the shader.
+		// 	2,                                // size : U+V => 2
+		// 	GL_FLOAT,                         // type
+		// 	GL_FALSE,                         // normalized?
+		// 	0,                                // stride
+		// 	(void*)0                          // array buffer offset
+		// );
+
+		// // Draw the triangle !
+		// glDrawArrays(GL_TRIANGLES, 0, 12*3); // 12*3 indices starting 
+		// // at 0 -> 12 triangles
+
+		// glDisableVertexAttribArray(0);
+		// glDisableVertexAttribArray(1);
+
 		// Draw scene as normal
         shader.Use();
         glm::mat4 model;
         glm::mat4 view = camera.GetViewMatrix();
+        glm::mat4 projection = glm::perspective(camera.Zoom, 
+        	(float)screenWidth / (float)screenHeight, 0.1f, 100.0f);
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 
         	1, GL_FALSE, glm::value_ptr(model));
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, 
@@ -310,6 +533,10 @@ int main( void )
 		   glfwWindowShouldClose(window) == 0 );
 
 	// Cleanup VBO and shader
+	// glDeleteBuffers(1, &vertexbuffer);
+	// glDeleteBuffers(1, &uvbuffer);
+	// glDeleteProgram(programID);
+	// glDeleteTextures(1, &TextureID);
 	glDeleteVertexArrays(1, &VertexArrayID);
 
 	// Close OpenGL window and terminate GLFW
@@ -412,7 +639,6 @@ void key_callback(GLFWwindow* window, int key, int scancode,
         keys[key] = false;
 }
 
-// executes the mouse callbacks
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
     if (firstMouse)
