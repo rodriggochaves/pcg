@@ -266,7 +266,7 @@ int main( void )
     Shader objShader("objshader.vs", "objshader.frag");
 
     // loading obj model
-    Model::Model objModel("resources/rock/rock.obj");
+    Model::Model objModel("resources/planet/planet.obj");
 
     GLfloat rotAngle = 0.0f;
 
@@ -319,23 +319,6 @@ int main( void )
         
         
         objShader.Use();   // <-- Don't forget this one!
-        // glUniformMatrix4fv(glGetUniformLocation(objShader.Program, 
-        // 	"projection"), 1, GL_FALSE, glm::value_ptr(projection));
-        // glUniformMatrix4fv(glGetUniformLocation(objShader.Program, "view"), 
-        // 	1, GL_FALSE, glm::value_ptr(view));
-
-        // // tranformations matrix
-        // // Translate it down a bit so it's at the center of the scene
-        // model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); 
-        // // It's a bit too big for our scene, so scale it down
-        // model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f)); 
-        // // Rotation: add random rotation around a (semi)randomly picked
-        // model = glm::rotate(model, rotAngle, glm::vec3(0.0f, 1.0f, 0.0f));
-        // // rotation axis vector
-        // glUniformMatrix4fv(glGetUniformLocation(objShader.Program, 
-        // 	"model"), 1, GL_FALSE, glm::value_ptr(model));
-        // objModel.Draw(objShader);
-        
         glUniformMatrix4fv(glGetUniformLocation(objShader.Program, 
 	    	"projection"), 1, GL_FALSE, glm::value_ptr(projection));
 	    glUniformMatrix4fv(glGetUniformLocation(objShader.Program, "view"), 
@@ -343,9 +326,10 @@ int main( void )
 	   	// It's a bit too big for our scene, so scale it down
 	    model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
 	    // Rotation: add random rotation around a (semi)randomly picked
-	    // model = glm::rotate(model, rotAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+	    // model = glm::rotate(model, rotAngle, glm::vec3(1.0f, 0.0f, 0.0f));
         
       	GLfloat X = 3;
+      	GLfloat DISTANCE = 10;
 
         for (int i = 0; i < X; ++i)
         {
@@ -355,16 +339,18 @@ int main( void )
 		    	{
 		    		// Translate it down a bit so 
 		    		// it's at the center of the scene
-				    model = glm::translate(model, glm::vec3(5.0f, 0.0f, 0.0f));  
+				    model = glm::translate(model, glm::vec3(DISTANCE, 
+				    	0.0f, 0.0f));  
 				    // rotation axis vector
 				    glUniformMatrix4fv(glGetUniformLocation(objShader.Program, 
 				    	"model"), 1, GL_FALSE, glm::value_ptr(model));
 				    objModel.Draw(objShader);
 		    	}
-		    	model = glm::translate(model, glm::vec3(-5.0f * X, 5.0f, 0.0f));
+		    	model = glm::translate(model, glm::vec3(-DISTANCE * X, 
+		    		DISTANCE, 0.0f));
 		    }
-		    model = glm::translate(model, glm::vec3(0.0f, -5.0f * X, 
-		    	5.0f));  
+		    model = glm::translate(model, glm::vec3(0.0f, -DISTANCE * X, 
+		    	DISTANCE));  
         }
 
         // Draw skybox as last
