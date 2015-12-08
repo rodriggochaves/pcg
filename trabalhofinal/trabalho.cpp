@@ -333,10 +333,12 @@ int main( void )
         g_uv_buffer_data, GL_STATIC_DRAW);
 
     // Setup and compile our shaders
-    Shader unicornShader("dragonShader.vs", "dragonShader.frag");
+    Shader objShader("objshader.vs", "objshader.frag");
 
-    //carregando o modelo da bola
-    Model::Model unicornModel("resources/planet/planet.obj");
+    // loading obj model
+    Model::Model objModel("resources/rock/rock.obj");
+
+    GLfloat rotAngle = 0.0f;
 
     do{
 
@@ -369,25 +371,27 @@ int main( void )
              camera.Position.x, camera.Position.y, camera.Position.z);
 
         // Cubes
-        //desenha a skybox
         glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
         
         //desenha a bola
-        unicornShader.Use();   // <-- Don't forget this one!
-        glUniformMatrix4fv(glGetUniformLocation(unicornShader.Program, 
+        objShader.Use();   // <-- Don't forget this one!
+        glUniformMatrix4fv(glGetUniformLocation(objShader.Program, 
         	"projection"), 1, GL_FALSE, glm::value_ptr(projection));
-        glUniformMatrix4fv(glGetUniformLocation(unicornShader.Program, "view"), 
+        glUniformMatrix4fv(glGetUniformLocation(objShader.Program, "view"), 
         	1, GL_FALSE, glm::value_ptr(view));
         //mudando a posição da bola e o tamanho dela
         model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); 
+        model = glm::rotate(model, rotAngle, glm::vec3(2.0f, 0.0f, 0.0f));
         // Translate it down a bit so it's at the center of the scene
         model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f)); 
         // It's a bit too big for our scene, so scale it down
-        glUniformMatrix4fv(glGetUniformLocation(unicornShader.Program, 
+        // 3. Rotation: add random rotation around a (semi)randomly picked
+        // rotation axis vector
+        glUniformMatrix4fv(glGetUniformLocation(objShader.Program, 
         	"model"), 1, GL_FALSE, glm::value_ptr(model));
-        unicornModel.Draw(unicornShader);
+        objModel.Draw(objShader);
         
         // Draw skybox as last
         glDepthFunc(GL_LEQUAL);  // Change depth function so depth 
@@ -409,6 +413,7 @@ int main( void )
         // Swap buffers
         glfwSwapBuffers(window);
 
+        rotAngle += 0.5f;
 
     } // Check if the ESC key was pressed or the window was closed
     while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
