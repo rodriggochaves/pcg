@@ -58,11 +58,15 @@ bool keys[1024];
 //posição de inicio do programa
 GLfloat lastX = 400, lastY = 300;
 bool firstMouse = true;
+bool spinnig = false;
 
 // Properties
 GLuint screenWidth = 800, screenHeight = 600;
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
+
+// PI
+const GLfloat PI = 3.14159265;
 
 int main( void )
 {
@@ -253,20 +257,23 @@ int main( void )
 
     // Cubemap (Skybox)
     std::vector<const GLchar*> faces;
-    faces.push_back("resources/lake/right.jpg");
-    faces.push_back("resources/lake/left.jpg");
-    faces.push_back("resources/lake/top.jpg");
-    faces.push_back("resources/lake/bottom.jpg");
-    faces.push_back("resources/lake/back.jpg");
-    faces.push_back("resources/lake/front.jpg");
+    faces.push_back("resources/jajlands1/right.jpg");
+    faces.push_back("resources/jajlands1/left.jpg");
+    faces.push_back("resources/jajlands1/top.jpg");
+    faces.push_back("resources/jajlands1/bottom.jpg");
+    faces.push_back("resources/jajlands1/back.jpg");
+    faces.push_back("resources/jajlands1/front.jpg");
     //carrega na skybox as imagens
     GLuint skyboxTexture = loadCubemap(faces);
 
     // Setup and compile our shaders
     Shader objShader("objshader.vs", "objshader.frag");
+    // loading rock model
+    Model::Model objModel("resources/rock/rock.obj");
 
-    // loading obj model
-    Model::Model objModel("resources/planet/planet.obj");
+	//nanosuit model
+	Shader nanoShader("nanoshader.vs", "nanoshader.frag");
+    Model::Model nanoModel("resources/nanosuit/nanosuit.obj");
 
     GLfloat rotAngle = 0.0f;
 
@@ -286,7 +293,7 @@ int main( void )
 
         // Draw scene as normal
         //utilizando o shader da skybox
-        shader.Use();        
+        shader.Use();      
         glm::mat4 model;
         glm::mat4 view = camera.GetViewMatrix();
         glm::mat4 projection = glm::perspective(camera.Zoom, 
@@ -300,23 +307,10 @@ int main( void )
         glUniform3f(glGetUniformLocation(shader.Program, "cameraPos"), 
              camera.Position.x, camera.Position.y, camera.Position.z);
 
-        // Cubes
-     //    glBindVertexArray(cubeVAO);
-     //    glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);
-    	// for (int i = 0; i < 10; ++i)
-    	// {
-    	// 	glEnableVertexAttribArray(2);
-	    // 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 
-	    // 	(GLvoid*)(i * sizeof(GLfloat)));
-	    // 	glDrawArrays(GL_TRIANGLES, 0, 36);
-    	// }
-    	// glBindVertexArray(0);
-
         // glBindVertexArray(cubeVAO);
         glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
-        
         
         objShader.Use();   // <-- Don't forget this one!
         glUniformMatrix4fv(glGetUniformLocation(objShader.Program, 
@@ -324,15 +318,19 @@ int main( void )
 	    glUniformMatrix4fv(glGetUniformLocation(objShader.Program, "view"), 
 	    	1, GL_FALSE, glm::value_ptr(view));
 	   	// It's a bit too big for our scene, so scale it down
-	    model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+	    model = glm::translate(model, glm::vec3(-25.0f, -14.0f, -25.0f));
+	    model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+	    if (spinnig) 
+	    	model = glm::rotate(model, rotAngle, 
+	    		glm::vec3(0.04f, 0.06f, 0.08f));
+	    
 	    // Rotation: add random rotation around a (semi)randomly picked
-	    // model = glm::rotate(model, rotAngle, glm::vec3(1.0f, 0.0f, 0.0f));
         
       	GLfloat X = 3;
-      	GLfloat DISTANCE = 10;
+      	GLfloat DISTANCE = 50;
 
-        for (int i = 0; i < X; ++i)
-        {
+        // for (int i = 0; i < X; ++i)
+        // {
 		    for (int j = 0; j < X; ++j)
 		    {
 		    	for (int k = 0; k < X; ++k)
@@ -340,18 +338,46 @@ int main( void )
 		    		// Translate it down a bit so 
 		    		// it's at the center of the scene
 				    model = glm::translate(model, glm::vec3(DISTANCE, 
-				    	0.0f, 0.0f));  
+				    	0.0f, 0.0f)); 
 				    // rotation axis vector
 				    glUniformMatrix4fv(glGetUniformLocation(objShader.Program, 
 				    	"model"), 1, GL_FALSE, glm::value_ptr(model));
 				    objModel.Draw(objShader);
 		    	}
 		    	model = glm::translate(model, glm::vec3(-DISTANCE * X, 
-		    		DISTANCE, 0.0f));
+		    		0.0f, DISTANCE));
 		    }
-		    model = glm::translate(model, glm::vec3(0.0f, -DISTANCE * X, 
-		    	DISTANCE));  
-        }
+		    // model = glm::translate(model, glm::vec3(0.0f, -DISTANCE * X, 
+		    // 	DISTANCE));  
+      //   }
+
+		// draws and moviment nanosuit
+		// defines nanoMatrixs
+		nanoShader.Use();
+		glm::mat4 nanomodel;
+		// puts the nanosuit into middle of screen
+		nanomodel = glm::translate(nanomodel, glm::vec3(0.0f, -7.0f, -5.0f));
+		nanomodel = glm::translate(nanomodel, camera.Position);
+		
+		// init the nano suit looking forward
+		nanomodel = glm::rotate(nanomodel, PI,
+			glm::vec3(0.0f, 1.0f, 0.0f));
+		// nanomodel = glm::rotate(nanomodel, PI,
+		// 	camera.Position);
+		nanomodel = glm::scale(nanomodel, glm::vec3(0.5f, 0.5f, 0.5f));
+        glm::mat4 nanoview = camera.GetViewMatrix();
+        glm::mat4 nanoprojection = glm::perspective(camera.Zoom, 
+             (float)screenWidth / (float)screenHeight, 0.1f, 100.0f);
+
+        //fits the nanoMatrixs to the shaders
+        glUniformMatrix4fv(glGetUniformLocation(nanoShader.Program, "model"), 
+             1, GL_FALSE, glm::value_ptr(nanomodel));
+        glUniformMatrix4fv(glGetUniformLocation(nanoShader.Program, "view"), 1, 
+             GL_FALSE, glm::value_ptr(nanoview));
+        glUniformMatrix4fv(glGetUniformLocation(nanoShader.Program, 
+        	"projection"), 
+             1, GL_FALSE, glm::value_ptr(nanoprojection));
+        nanoModel.Draw(nanoShader);
 
         // Draw skybox as last
         glDepthFunc(GL_LEQUAL);  // Change depth function so depth 
@@ -467,6 +493,8 @@ void Do_Movement()
         camera.ProcessKeyboard(LEFT, deltaTime);
     if (keys[GLFW_KEY_D])
         camera.ProcessKeyboard(RIGHT, deltaTime);
+    if (keys[GLFW_KEY_F])
+    	spinnig = !spinnig;
 }
 
 // Is called whenever a key is pressed/released via GLFW
